@@ -36,6 +36,11 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-venv \
+    python3-dev \
+    libffi-dev \
+    libssl-dev \
+    curl \
+    git \
     shellcheck \
     software-properties-common \
     tar \
@@ -107,13 +112,15 @@ RUN wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/release
 RUN wget -O /usr/local/bin/opa https://github.com/open-policy-agent/opa/releases/download/${OPA_VERSION}/opa_linux_amd64_static \
     && chmod +x /usr/local/bin/opa
 
-RUN wget -O /tmp/conftest.tar.gz https://github.com/open-policy-agent/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz \
+RUN wget -O /tmp/conftest.tar.gz https://github.com/open-policy-agent/conftest/releases/download/v0.59.0/conftest_0.59.0_Linux_x86_64.tar.gz \
     && tar -xzf /tmp/conftest.tar.gz -C /tmp \
     && mv /tmp/conftest /usr/local/bin/conftest \
     && chmod +x /usr/local/bin/conftest \
     && rm -rf /tmp/conftest /tmp/conftest.tar.gz
 
-RUN pip3 install --no-cache-dir \
+
+RUN pip3 install --break-system-packages --no-cache-dir --upgrade pip setuptools wheel \
+    && pip3 install --break-system-packages --no-cache-dir \
     ansible \
     ansible-lint \
     yamllint \
