@@ -1,0 +1,71 @@
+name: Security and SBOM
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  sbom-and-scan:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare artifacts dir
+        run: mkdir -p artifacts/sbom
+
+      - name: Install Syft
+        run: |
+          curl -fsSL https://github.com/anchore/syft/releases/download/v1.42.3/syft_1.42.3_linux_amd64.tar.gz -o /tmp/syft.tar.gz
+          tar -xzf /tmp/syft.tar.gz -C /tmp
+          sudo mv /tmp/syft /usr/local/bin/syft
+          syft version
+
+      - name: Install Grype
+        run: |
+          curl -fsSL https://github.com/anchore/grype/releases/download/v0.110.0/grype_0.110.0_linux_amd64.tar.gz -o /tmp/grype.tar.gz
+          tar -xzf /tmp/grype.tar.gz -C /tmp
+          sudo mv /tmp/grype /usr/local/bin/grype
+          grype version
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget
+          wget -O /tmp/trivy.deb https://github.com/aquasecurity/trivy/releases/download/v0.69.3/trivy_0.69.3_Linux-64bit.deb
+          sudo apt-get install -y /tmp/trivy.deb
+          trivy --version
+
+      - name: Install TruffleHog
+        run: |
+          curl -fsSL https://github.com/trufflesecurity/trufflehog/releases/download/v3.94.2/trufflehog_3.94.2_linux_amd64.tar.gz -o /tmp/trufflehog.tar.gz
+          tar -xzf /tmp/trufflehog.tar.gz -C /tmp
+          sudo mv /tmp/trufflehog /usr/local/bin/trufflehog
+          trufflehog --version
+
+      - name: Generate CycloneDX SBOM
+        run: syft dir:. -o cyclonedx-json=artifacts/sbom/sbom-cyclonedx.json
+
+      - name: Generate SPDX SBOM
+        run: syft dir:. -o spdx-json=artifacts/sbom/sbom-spdx.json
+
+      - name: Scan SBOM with Grype
+        run: grype sbom:artifacts/sbom/sbom-cyclonedx.json | tee artifacts/sbom/grype-sbom.txt
+
+      - name: Scan filesystem with Trivy
+        run: trivy fs --scanners vuln,secret,misconfig . | tee artifacts/sbom/trivy-fs.txt
+
+      - name: Run TruffleHog
+        run: trufflehog filesystem . --no-update --results=verified,unknown --json > artifacts/sbom/trufflehog.json || true
+
+      - name: Upload SBOM and security artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-sbom-results
+          path: artifacts/sbom/

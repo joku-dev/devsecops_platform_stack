@@ -1,0 +1,9 @@
+quiet: true
+compact: true
+framework:
+  - terraform
+  - kubernetes
+  - dockerfile
+  - github_actions
+skip-check:
+  - CKV_DOCKER_2

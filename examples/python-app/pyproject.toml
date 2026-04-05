@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "demo-app"
+version = "0.1.0"
+description = "Example Python app for the DevSecOps Stack"
+authors = ["OpenAI <example@example.com>"]
+packages = [{ include = "demo_app", from = "src" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.32.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.0"
+ruff = "^0.6.0"
+black = "^24.8.0"
+mypy = "^1.11.0"
+pip-audit = "^2.7.0"
+
+[tool.ruff]
+line-length = 100
+
+[tool.black]
+line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+
+[build-system]
+requires = ["poetry-core>=1.8.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,4 @@
+resources:
+  - root-application.yaml
+  - apps/platform-observability.yaml
+  - apps/platform-external-secrets.yaml

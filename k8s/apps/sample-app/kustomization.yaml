@@ -1,0 +1,5 @@
+resources:
+  - ../../namespaces/sample-app.yaml
+  - deployment.yaml
+  - service.yaml
+  - networkpolicy.yaml

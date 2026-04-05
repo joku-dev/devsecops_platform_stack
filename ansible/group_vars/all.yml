@@ -1,0 +1,17 @@
+dev_user: devuser
+dev_user_shell: /bin/bash
+project_root: /opt/dev-environment
+timezone: Europe/Berlin
+
+# Optional: Public Keys für den Dev-User
+dev_user_authorized_keys: []
+
+# Optional: Zusätzliche Debian-Pakete
+extra_apt_packages: []
+
+# Optional: Zusätzliche RHEL-Pakete
+extra_rhel_packages: []
+
+# Optionale Firewall-Freigaben zusätzlich zu SSH
+ufw_allowed_tcp_ports: []
+firewalld_allowed_tcp_ports: []

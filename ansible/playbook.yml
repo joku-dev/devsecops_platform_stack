@@ -1,0 +1,246 @@
+- name: Provision Linux development host
+  hosts: dev
+  become: true
+
+  vars_files:
+    - group_vars/all.yml
+
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Update apt cache on Debian
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family == "Debian"
+
+    - name: Upgrade packages on Debian
+      ansible.builtin.apt:
+        upgrade: dist
+      when: ansible_os_family == "Debian"
+
+    - name: Upgrade packages on RHEL
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+        update_only: true
+      when: ansible_os_family == "RedHat"
+
+    - name: Install base packages on Debian
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - git
+          - gnupg
+          - lsb-release
+          - ufw
+          - vim
+          - htop
+          - jq
+          - unzip
+          - python3
+          - python3-pip
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Install base packages on RHEL
+      ansible.builtin.dnf:
+        name:
+          - ca-certificates
+          - curl
+          - git
+          - gnupg2
+          - vim-enhanced
+          - htop
+          - jq
+          - unzip
+          - python3
+          - python3-pip
+          - firewalld
+          - yum-utils
+          - shadow-utils
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Install extra packages on Debian
+      ansible.builtin.apt:
+        name: "{{ extra_apt_packages }}"
+        state: present
+      when:
+        - ansible_os_family == "Debian"
+        - extra_apt_packages | length > 0
+
+    - name: Install extra packages on RHEL
+      ansible.builtin.dnf:
+        name: "{{ extra_rhel_packages }}"
+        state: present
+      when:
+        - ansible_os_family == "RedHat"
+        - extra_rhel_packages | length > 0
+
+    - name: Set timezone
+      community.general.timezone:
+        name: "{{ timezone }}"
+
+    - name: Ensure dev user exists
+      ansible.builtin.user:
+        name: "{{ dev_user }}"
+        shell: "{{ dev_user_shell }}"
+        groups: sudo
+        append: true
+        create_home: true
+      when: ansible_os_family == "Debian"
+
+    - name: Ensure dev user exists on RHEL
+      ansible.builtin.user:
+        name: "{{ dev_user }}"
+        shell: "{{ dev_user_shell }}"
+        groups: wheel
+        append: true
+        create_home: true
+      when: ansible_os_family == "RedHat"
+
+    - name: Create ssh directory for dev user
+      ansible.builtin.file:
+        path: "/home/{{ dev_user }}/.ssh"
+        state: directory
+        owner: "{{ dev_user }}"
+        group: "{{ dev_user }}"
+        mode: "0700"
+
+    - name: Add authorized keys for dev user
+      ansible.posix.authorized_key:
+        user: "{{ dev_user }}"
+        key: "{{ item }}"
+        state: present
+      loop: "{{ dev_user_authorized_keys }}"
+      when: dev_user_authorized_keys | length > 0
+
+    - name: Create Docker keyring directory on Debian
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+      when: ansible_os_family == "Debian"
+
+    - name: Download Docker GPG key on Debian
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/debian/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+      when: ansible_os_family == "Debian"
+
+    - name: Add Docker repository on Debian
+      ansible.builtin.copy:
+        dest: /etc/apt/sources.list.d/docker.list
+        mode: "0644"
+        content: |
+          deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian {{ ansible_distribution_release }} stable
+      when: ansible_os_family == "Debian"
+
+    - name: Update apt cache after Docker repo on Debian
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family == "Debian"
+
+    - name: Install Docker engine and compose plugin on Debian
+      ansible.builtin.apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Add Docker CE repository on RHEL
+      ansible.builtin.command: >
+        dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+      when: ansible_os_family == "RedHat"
+
+    - name: Install Docker engine and compose plugin on RHEL
+      ansible.builtin.dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+      when: ansible_os_family == "RedHat"
+
+    - name: Enable Docker service
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Add dev user to docker group
+      ansible.builtin.user:
+        name: "{{ dev_user }}"
+        groups: docker
+        append: true
+
+    - name: Create project root
+      ansible.builtin.file:
+        path: "{{ project_root }}"
+        state: directory
+        owner: "{{ dev_user }}"
+        group: "{{ dev_user }}"
+        mode: "0755"
+
+    - name: Enable UFW with deny default on Debian
+      community.general.ufw:
+        state: enabled
+        policy: deny
+      when: ansible_os_family == "Debian"
+
+    - name: Allow SSH with UFW on Debian
+      community.general.ufw:
+        rule: allow
+        port: "22"
+        proto: tcp
+      when: ansible_os_family == "Debian"
+
+    - name: Allow configured TCP ports with UFW on Debian
+      community.general.ufw:
+        rule: allow
+        port: "{{ item }}"
+        proto: tcp
+      loop: "{{ ufw_allowed_tcp_ports }}"
+      when:
+        - ansible_os_family == "Debian"
+        - ufw_allowed_tcp_ports | length > 0
+
+    - name: Enable firewalld on RHEL
+      ansible.builtin.systemd:
+        name: firewalld
+        enabled: true
+        state: started
+      when: ansible_os_family == "RedHat"
+
+    - name: Allow SSH with firewalld on RHEL
+      ansible.posix.firewalld:
+        service: ssh
+        permanent: true
+        state: enabled
+        immediate: true
+      when: ansible_os_family == "RedHat"
+
+    - name: Allow configured TCP ports with firewalld on RHEL
+      ansible.posix.firewalld:
+        port: "{{ item }}/tcp"
+        permanent: true
+        state: enabled
+        immediate: true
+      loop: "{{ firewalld_allowed_tcp_ports }}"
+      when:
+        - ansible_os_family == "RedHat"
+        - firewalld_allowed_tcp_ports | length > 0
