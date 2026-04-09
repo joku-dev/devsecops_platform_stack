@@ -22,7 +22,8 @@
         "mhutchie.git-graph",
         "github.vscode-github-actions",
         "ms-ossdata.vscode-postgresql",
-        "minamijoyo.hcledit"
+        "minamijoyo.hcledit",
+        "openai.chatgpt"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
