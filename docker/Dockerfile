@@ -26,6 +26,8 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     ca-certificates \
     curl \
+    docker.io \
+    gh \
     git \
     gnupg \
     htop \
@@ -39,8 +41,6 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     libffi-dev \
     libssl-dev \
-    curl \
-    git \
     shellcheck \
     software-properties-common \
     tar \

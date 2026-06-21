@@ -119,6 +119,17 @@ In VS Code:
 
 Danach arbeitest du direkt im Linux-Container mit der vordefinierten Toolchain.
 
+### GitHub CLI im Dev Container anmelden
+
+Melde dich im VS-Code-Terminal einmal interaktiv an:
+
+```bash
+gh auth login
+gh auth status
+```
+
+Die Anmeldung erfolgt im Container. Tokens gehören nicht in `docker/.env` oder ins Repository.
+
 ### 12. Prüfen, ob du im Container bist
 Im VS-Code-Terminal:
 ```bash

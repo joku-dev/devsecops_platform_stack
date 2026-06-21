@@ -9,6 +9,7 @@ Diese Version erweitert den Stack gezielt um **Python-Unterstützung** für Entw
 ### Development
 - VS Code Dev Container
 - Debian-basierter Workspace
+- GitHub CLI (`gh`) und VS-Code Pull-Request-Integration
 - PostgreSQL, Redis
 - optionale Plattform-Services: MinIO, Mailhog
 
@@ -77,6 +78,17 @@ make python-lint
 ```bash
 make python-audit
 ```
+
+## GitHub-Workflow Im Dev Container
+
+Nach dem ersten Start des Dev Containers einmal interaktiv anmelden:
+
+```bash
+gh auth login
+gh auth status
+```
+
+Die Authentifizierung bleibt im persistierten Home-Volume des Workspace-Containers. Zugangstokens dürfen nicht in `docker/.env`, Compose-Dateien oder das Repository geschrieben werden.
 
 ## Schritt-für-Schritt-Anleitungen
 

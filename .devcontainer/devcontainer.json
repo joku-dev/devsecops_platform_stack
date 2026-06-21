@@ -21,6 +21,7 @@
         "redhat.vscode-yaml",
         "mhutchie.git-graph",
         "github.vscode-github-actions",
+        "github.vscode-pull-request-github",
         "ms-ossdata.vscode-postgresql",
         "minamijoyo.hcledit",
         "openai.chatgpt"
@@ -48,9 +49,8 @@
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
     "source=${localEnv:SSH_AUTH_SOCK},target=/ssh-agent,type=bind",
     "source=${localEnv:HOME}/.gitconfig,target=/home/devuser/.gitconfig,type=bind,readonly"
-]
   ],
-  "postCreateCommand": "mkdir -p /workspace/artifacts/sbom && python3 --version && poetry --version && terraform version && kubectl version --client && helm version && k3d version && ansible --version && trivy --version && tflint --version && syft version && grype version && cosign version"
+  "postCreateCommand": "mkdir -p /workspace/artifacts/sbom && python3 --version && poetry --version && terraform version && kubectl version --client && helm version && k3d version && ansible --version && trivy --version && tflint --version && syft version && grype version && cosign version && gh --version && docker --version && (gh auth status || true)"
 
 
 
