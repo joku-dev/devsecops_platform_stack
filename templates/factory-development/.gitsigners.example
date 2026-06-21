@@ -1,0 +1,3 @@
+# Copy this file to .gitsigners only when local verification is required.
+# Format: principal SSH-public-key
+# engineer@example.com ssh-ed25519 AAAA... engineer@example.com

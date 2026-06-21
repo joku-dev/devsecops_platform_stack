@@ -6,6 +6,9 @@ on:
     branches: [ main ]
     paths:
       - docker/**
+      - scripts/configure-git-ssh-signing.sh
+      - scripts/check-git-ssh-signing.sh
+      - .github/workflows/build-sign-scan.yml
 
 jobs:
   build-sign-scan:
@@ -41,11 +44,19 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: ./docker
+          context: .
           file: ./docker/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: true
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build.outputs.digest }}
+          push-to-registry: true
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v4.0.0

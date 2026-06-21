@@ -90,6 +90,17 @@ gh auth status
 
 Die Authentifizierung bleibt im persistierten Home-Volume des Workspace-Containers. Zugangstokens dürfen nicht in `docker/.env`, Compose-Dateien oder das Repository geschrieben werden.
 
+## Git-Commit-Signaturen
+
+Der Stack unterstützt SSH-basierte Git-Signaturen. Sie sind für GitHub geeignet und nutzen den weitergereichten SSH-Agent, ohne private Schlüssel im Image abzulegen.
+
+```bash
+make git-signing-setup SIGNING_KEY=~/.ssh/id_ed25519_signing.pub
+make git-signing-check
+```
+
+Die vollständige Einrichtung einschließlich GitHub-Key-Upload und lokaler Verifikation steht in `docs/factory-development-stack.md`.
+
 ## Schritt-für-Schritt-Anleitungen
 
 - `docs/getting-started-mac.md` → Erstinbetriebnahme auf dem Mac

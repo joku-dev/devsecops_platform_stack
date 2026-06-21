@@ -140,3 +140,10 @@ python-audit:
 	docker exec -it $(WORKSPACE_LOCAL) bash -lc "cd /workspace/examples/python-app && poetry run pip-audit"
 
 python-all: python-install python-lint python-test python-audit
+
+git-signing-setup:
+	@test -n "$(SIGNING_KEY)" || (echo "Set SIGNING_KEY to an SSH public key path, for example ~/.ssh/id_ed25519_signing.pub"; exit 2)
+	./scripts/configure-git-ssh-signing.sh --public-key "$(SIGNING_KEY)"
+
+git-signing-check:
+	./scripts/check-git-ssh-signing.sh

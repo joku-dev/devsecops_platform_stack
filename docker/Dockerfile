@@ -135,6 +135,10 @@ RUN pip3 install --break-system-packages --no-cache-dir --upgrade pip setuptools
 
 RUN npm install -g yarn pnpm
 
+COPY scripts/configure-git-ssh-signing.sh scripts/check-git-ssh-signing.sh /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/configure-git-ssh-signing.sh /usr/local/bin/check-git-ssh-signing.sh
+
 RUN groupadd --gid ${USER_GID} ${USERNAME} \
     && useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME}
 
