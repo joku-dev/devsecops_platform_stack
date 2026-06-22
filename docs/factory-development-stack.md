@@ -2,17 +2,22 @@
 
 ## Purpose
 
-`devsecops_platform_stack` is a standalone, versioned development toolchain for projects such as the AI-Native Engineering Factory. It provides tooling, image security and developer workflows. It does not contain Factory source code, Factory runtime data, Factory credentials or Factory services.
+`devsecops_platform_stack` is the standalone, versioned development toolchain for projects such as the AI-Native Engineering Factory. It provides the shared Dev Container, tooling, image security and developer workflows. It does not contain Factory source code, Factory runtime data, Factory credentials or Factory services.
 
 ## Use With The Factory
 
-After the workspace image has been published, copy `templates/factory-development/.devcontainer/` into the Factory repository as `.devcontainer/`. The Factory checkout remains the workspace mount; its project dependencies are installed only into that checkout's `.venv`.
+Open this repository in its Dev Container, then clone the Factory as a separate checkout in the persisted developer home directory. Do not add a `.devcontainer/` directory to the Factory repository.
 
 ```bash
-cp -R templates/factory-development/.devcontainer /path/to/ai-native-engineering-factory/
+mkdir -p ~/workspaces
+git clone git@github.com:joku-dev/ai-native-engineering-factory.git ~/workspaces/ai-native-engineering-factory
+cd ~/workspaces/ai-native-engineering-factory
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -e '.[dev,neo4j]'
 ```
 
-The template uses the signed Workspace image from GHCR. Pin the image to a digest for controlled releases rather than relying on the moving `main` tag.
+Open `~/workspaces/ai-native-engineering-factory` in the already running Dev Container to work on the Factory. The checkout and its `.venv` remain separate from this stack repository, while every developer uses the same versioned Stack image and editor configuration.
 
 ## GitHub Authentication
 
@@ -47,7 +52,7 @@ The setup enables signed commits and tags globally for the developer. Private ke
 
 ## Local Verification
 
-For local verification of other developers' SSH signatures, copy `templates/factory-development/.gitsigners.example` to a controlled `.gitsigners` file, add approved public keys, and configure it:
+For local verification of other developers' SSH signatures, copy `templates/factory-development/.gitsigners.example` to a controlled `.gitsigners` file in the Factory checkout, add approved public keys, and configure it:
 
 ```bash
 git config --global gpg.ssh.allowedSignersFile "$(pwd)/.gitsigners"
