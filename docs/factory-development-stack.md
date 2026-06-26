@@ -6,18 +6,20 @@
 
 ## Use With The Factory
 
-Open this repository in its Dev Container, then clone the Factory as a separate checkout in the persisted developer home directory. Do not add a `.devcontainer/` directory to the Factory repository.
+Open this repository in its Dev Container, then clone the Factory as a separate checkout in the shared host workspace. Do not add a `.devcontainer/` directory to the Factory repository.
+
+Before starting the Dev Container, copy `docker/.env.example` to `docker/.env` and set `WORKSPACE_ROOT` to the absolute host directory that contains both repositories. The local Compose configuration mounts it at `/workspace`.
 
 ```bash
-mkdir -p ~/workspaces
-git clone git@github.com:joku-dev/ai-native-engineering-factory.git ~/workspaces/ai-native-engineering-factory
-cd ~/workspaces/ai-native-engineering-factory
+cd /workspace
+git clone git@github.com:joku-dev/ai-native-engineering-factory.git ai-native-engineering-factory
+cd /workspace/ai-native-engineering-factory
 python3 -m venv .venv
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install -e '.[dev,neo4j]'
 ```
 
-Open `~/workspaces/ai-native-engineering-factory` in the already running Dev Container to work on the Factory. The checkout and its `.venv` remain separate from this stack repository, while every developer uses the same versioned Stack image and editor configuration.
+Open `/workspace/ai-native-engineering-factory` in the already running Dev Container to work on the Factory. The checkout and its `.venv` remain separate from this stack repository, while every developer uses the same versioned Stack image and editor configuration.
 
 ## GitHub Authentication
 

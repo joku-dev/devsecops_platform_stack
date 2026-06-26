@@ -2,7 +2,7 @@
   "name": "DevSecOps Stack",
   "dockerComposeFile": "../docker/compose.local.yml",
   "service": "workspace",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/workspace/devsecops_platform_stack",
   "remoteUser": "devuser",
   "shutdownAction": "stopCompose",
   "customizations": {
@@ -53,7 +53,7 @@
   "remoteEnv": {
     "SSH_AUTH_SOCK": "/ssh-agent"
   },
-  "postCreateCommand": "mkdir -p /workspace/artifacts/sbom && python3 --version && poetry --version && terraform version && kubectl version --client && helm version && k3d version && ansible --version && trivy --version && tflint --version && syft version && grype version && cosign version && gh --version && docker --version && (gh auth status || true)"
+  "postCreateCommand": "mkdir -p /workspace/devsecops_platform_stack/artifacts/sbom && python3 --version && poetry --version && terraform version && kubectl version --client && helm version && k3d version && ansible --version && trivy --version && tflint --version && syft version && grype version && cosign version && gh --version && docker --version && (gh auth status || true)"
 
 
 

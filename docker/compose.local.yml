@@ -5,9 +5,9 @@ services:
       dockerfile: docker/Dockerfile
     image: devsecops-stack-workspace
     container_name: dev-workspace-local
-    working_dir: /workspace
+    working_dir: /workspace/devsecops_platform_stack
     volumes:
-      - .:/workspace
+      - ${WORKSPACE_ROOT:?Set WORKSPACE_ROOT to the host directory containing your repositories}:/workspace
       - dev_home:/home/devuser
       - /var/run/docker.sock:/var/run/docker.sock
     stdin_open: true

@@ -56,6 +56,24 @@ Diese Version erweitert den Stack gezielt um **Python-Unterstützung** für Entw
 - `docs/deployment-rhel.md`
 - `docs/python.md`
 
+## Gemeinsamer Workspace
+
+Der lokale Dev Container mountet einen Host-Ordner mit mehreren Repositories nach
+`/workspace`. Kopiere `docker/.env.example` nach `docker/.env` und setze
+`WORKSPACE_ROOT` auf den absoluten Pfad dieses Host-Ordners:
+
+```text
+~/Development/
+├── devsecops_platform_stack/
+└── ai-native-engineering-factory/
+```
+
+Nach **Dev Containers: Rebuild and Reopen in Container** liegen die Repositories
+im Container unter `/workspace/devsecops_platform_stack` und
+`/workspace/ai-native-engineering-factory`. Der Stack wird automatisch im ersten
+Pfad geöffnet. Bestehende Clones im alten Workspace-Mount müssen vor dem Rebuild
+in den gemeinsamen Host-Ordner verschoben werden.
+
 ## Python-Workflow
 
 ### Beispielprojekt installieren
